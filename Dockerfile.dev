@@ -2,15 +2,16 @@
 FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# ---- Runtime stage ----
+# ---- Runtime stage ----z
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# Copy the JAR built in the previous stage
+# 4️⃣ Copier le jar depuis la phase build
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 5000
-ENTRYPOINT ["java","-jar","app.jar"]
+EXPOSE 5002
+ENTRYPOINT ["java", "-jar", "app.jar"]
