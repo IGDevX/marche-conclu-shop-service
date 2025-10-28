@@ -34,3 +34,11 @@ spring:
 eureka:
   client:
     enabled: false
+
+# MinIO Configuration for tests
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: product-images-test
+  region: us-east-1
