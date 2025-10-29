@@ -1,0 +1,29 @@
+server:
+  port: 5020
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shop_service_test
+    username: user
+    password: pwd
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    clean-disabled: false
+    locations: classpath:db/migration,classpath:db/test
+    default-schema: public
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  cloud:
+    config:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
