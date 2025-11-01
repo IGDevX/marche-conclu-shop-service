@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS product (
     currency_id BIGINT NOT NULL,
     unit_id BIGINT NOT NULL,
     
-    -- Category (mandatory)
-    category_id BIGINT NOT NULL,
+    -- Shelf (mandatory)
+    shelf_id BIGINT NOT NULL,
     
     -- Image storage (cloud service)
     image_url VARCHAR(500),
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS product (
     -- Foreign keys
     CONSTRAINT fk_product_currency FOREIGN KEY (currency_id) REFERENCES currency(id),
     CONSTRAINT fk_product_unit FOREIGN KEY (unit_id) REFERENCES units(id),
-    CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES product_category(id)
+    CONSTRAINT fk_product_shelf FOREIGN KEY (shelf_id) REFERENCES shelf(id)
 );
 
 -- Create product_certification_link table (Many-to-Many)
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS product_certification_link (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_product_category ON product(category_id) WHERE is_deleted = FALSE;
+CREATE INDEX idx_product_shelf ON product(shelf_id) WHERE is_deleted = FALSE;
 CREATE INDEX idx_product_is_deleted ON product(is_deleted);
 CREATE INDEX idx_product_is_available ON product(is_available) WHERE is_deleted = FALSE;
 CREATE INDEX idx_product_is_fresh ON product(is_fresh) WHERE is_deleted = FALSE;

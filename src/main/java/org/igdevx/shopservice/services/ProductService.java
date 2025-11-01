@@ -26,7 +26,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CurrencyRepository currencyRepository;
     private final UnitRepository unitRepository;
-    private final ProductCategoryRepository categoryRepository;
+    private final ShelfRepository shelfRepository;
     private final ProductCertificationRepository certificationRepository;
     private final ProductMapper productMapper;
     private final ImageStorageService imageStorageService;
@@ -67,9 +67,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> getProductsByCategory(Long categoryId) {
-        log.debug("Fetching products for category: {}", categoryId);
-        return productRepository.findByCategoryId(categoryId)
+    public List<ProductResponse> getProductsByShelf(Long shelfId) {
+        log.debug("Fetching products for shelf: {}", shelfId);
+        return productRepository.findByShelfId(shelfId)
                 .stream()
                 .map(productMapper::toResponse)
                 .collect(Collectors.toList());
@@ -95,8 +95,8 @@ public class ProductService {
         Unit unit = unitRepository.findById(request.getUnitId())
                 .orElseThrow(() -> new ResourceNotFoundException("Unit not found with id: " + request.getUnitId()));
 
-        ProductCategory category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
+        Shelf shelf = shelfRepository.findById(request.getShelfId())
+                .orElseThrow(() -> new ResourceNotFoundException("Shelf not found with id: " + request.getShelfId()));
 
         // Fetch certifications if provided
         Set<ProductCertification> certifications = new HashSet<>();
@@ -114,10 +114,11 @@ public class ProductService {
                 .price(request.getPrice())
                 .currency(currency)
                 .unit(unit)
-                .category(category)
+                .shelf(shelf)
                 .certifications(certifications)
                 .isFresh(request.getIsFresh() != null ? request.getIsFresh() : false)
                 .isAvailable(request.getIsAvailable() != null ? request.getIsAvailable() : true)
+                .producerId(request.getProducerId())
                 .build();
 
         Product savedProduct = productRepository.save(product);
@@ -172,10 +173,10 @@ public class ProductService {
             product.setUnit(unit);
         }
 
-        if (!product.getCategory().getId().equals(request.getCategoryId())) {
-            ProductCategory category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
-            product.setCategory(category);
+        if (!product.getShelf().getId().equals(request.getShelfId())) {
+            Shelf shelf = shelfRepository.findById(request.getShelfId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Shelf not found with id: " + request.getShelfId()));
+            product.setShelf(shelf);
         }
 
         // Update certifications
@@ -240,6 +241,33 @@ public class ProductService {
     public List<ProductResponse> getAllDeletedProducts() {
         log.debug("Fetching all deleted products");
         return productRepository.findAllDeleted()
+                .stream()
+                .map(productMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getProductsByProducerId(Long producerId) {
+        log.debug("Fetching products for producer: {}", producerId);
+        return productRepository.findByProducerId(producerId)
+                .stream()
+                .map(productMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getAvailableProductsByProducerId(Long producerId) {
+        log.debug("Fetching available products for producer: {}", producerId);
+        return productRepository.findByProducerIdAndIsAvailable(producerId)
+                .stream()
+                .map(productMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getProductsByProducerIdAndShelfId(Long producerId, Long shelfId) {
+        log.debug("Fetching products for producer: {} and shelf: {}", producerId, shelfId);
+        return productRepository.findByProducerIdAndShelfId(producerId, shelfId)
                 .stream()
                 .map(productMapper::toResponse)
                 .collect(Collectors.toList());

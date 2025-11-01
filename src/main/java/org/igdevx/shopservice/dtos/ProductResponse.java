@@ -22,7 +22,7 @@ public class ProductResponse {
     
     private CurrencyResponse currency;
     private UnitResponse unit;
-    private ProductCategoryResponse category;
+    private ShelfResponse shelf;
     private Set<ProductCertificationResponse> certifications;
     
     private String imageUrl;
@@ -32,6 +32,8 @@ public class ProductResponse {
     private Boolean isFresh;
     private Boolean isAvailable;
     
+    private Long producerId;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isDeleted;

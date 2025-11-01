@@ -100,7 +100,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.getCertificationById(999L))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("ProductCertification not found with id: 999");
+                .hasMessageContaining("Product certification not found with id: 999");
         verify(certificationRepository, times(1)).findById(999L);
     }
 
@@ -129,7 +129,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.getCertificationByLabel("Unknown"))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("ProductCertification not found with label: Unknown");
+                .hasMessageContaining("Product certification not found with label: Unknown");
         verify(certificationRepository, times(1)).findByLabel("Unknown");
     }
 
@@ -161,7 +161,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.createCertification(certificationRequest))
                 .isInstanceOf(DuplicateResourceException.class)
-                .hasMessageContaining("ProductCertification already exists with label: Organic");
+                .hasMessageContaining("Product certification already exists with label: Organic");
         verify(certificationRepository, times(1)).existsByLabel("Organic");
         verify(certificationRepository, never()).save(any());
     }
@@ -227,7 +227,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.updateCertification(1L, updateRequest))
                 .isInstanceOf(DuplicateResourceException.class)
-                .hasMessageContaining("ProductCertification already exists with label: Fair Trade");
+                .hasMessageContaining("Product certification already exists with label: Fair Trade");
         verify(certificationRepository, times(1)).findById(1L);
         verify(certificationRepository, times(1)).existsByLabel("Fair Trade");
         verify(certificationRepository, never()).save(any());
@@ -242,7 +242,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.updateCertification(999L, certificationRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("ProductCertification not found with id: 999");
+                .hasMessageContaining("Product certification not found with id: 999");
         verify(certificationRepository, times(1)).findById(999L);
         verify(certificationRepository, never()).save(any());
     }
@@ -272,7 +272,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.deleteCertification(999L))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("ProductCertification not found with id: 999");
+                .hasMessageContaining("Product certification not found with id: 999");
         verify(certificationRepository, times(1)).findById(999L);
         verify(certificationRepository, never()).save(any());
     }
@@ -303,7 +303,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.restoreCertification(1L))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("ProductCertification with id 1 is not deleted");
+                .hasMessageContaining("Product certification with id 1 is not deleted");
         verify(certificationRepository, times(1)).findByIdIncludingDeleted(1L);
         verify(certificationRepository, never()).save(any());
     }
@@ -317,7 +317,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.restoreCertification(999L))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("ProductCertification not found with id: 999");
+                .hasMessageContaining("Product certification not found with id: 999");
         verify(certificationRepository, times(1)).findByIdIncludingDeleted(999L);
         verify(certificationRepository, never()).save(any());
     }
@@ -346,7 +346,7 @@ class ProductCertificationServiceTest {
         // When & Then
         assertThatThrownBy(() -> certificationService.hardDeleteCertification(999L))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("ProductCertification not found with id: 999");
+                .hasMessageContaining("Product certification not found with id: 999");
         verify(certificationRepository, times(1)).findByIdIncludingDeleted(999L);
         verify(certificationRepository, never()).hardDeleteById(any());
     }
