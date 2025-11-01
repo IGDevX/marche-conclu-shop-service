@@ -12,16 +12,16 @@ public class ProductMapper {
 
     private final CurrencyMapper currencyMapper;
     private final UnitMapper unitMapper;
-    private final ProductCategoryMapper categoryMapper;
+    private final ShelfMapper shelfMapper;
     private final ProductCertificationMapper certificationMapper;
 
     public ProductMapper(CurrencyMapper currencyMapper,
                         UnitMapper unitMapper,
-                        ProductCategoryMapper categoryMapper,
+                        ShelfMapper shelfMapper,
                         ProductCertificationMapper certificationMapper) {
         this.currencyMapper = currencyMapper;
         this.unitMapper = unitMapper;
-        this.categoryMapper = categoryMapper;
+        this.shelfMapper = shelfMapper;
         this.certificationMapper = certificationMapper;
     }
 
@@ -37,7 +37,7 @@ public class ProductMapper {
                 .price(product.getPrice())
                 .currency(currencyMapper.toResponse(product.getCurrency()))
                 .unit(unitMapper.toResponse(product.getUnit()))
-                .category(categoryMapper.toResponse(product.getCategory()))
+                .shelf(shelfMapper.toResponse(product.getShelf()))
                 .certifications(product.getCertifications() != null
                         ? product.getCertifications().stream()
                         .map(certificationMapper::toResponse)
@@ -48,6 +48,7 @@ public class ProductMapper {
                 .imageThumbnailUrl(product.getImageThumbnailUrl())
                 .isFresh(product.getIsFresh())
                 .isAvailable(product.getIsAvailable())
+                .producerId(product.getProducerId())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .isDeleted(product.getIsDeleted())
@@ -64,5 +65,6 @@ public class ProductMapper {
         product.setPrice(request.getPrice());
         product.setIsFresh(request.getIsFresh() != null ? request.getIsFresh() : false);
         product.setIsAvailable(request.getIsAvailable() != null ? request.getIsAvailable() : true);
+        product.setProducerId(request.getProducerId());
     }
 }

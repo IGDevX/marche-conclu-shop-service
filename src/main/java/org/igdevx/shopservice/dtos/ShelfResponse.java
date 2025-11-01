@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCategoryResponse {
+public class ShelfResponse {
 
     private Long id;
     private String label;
-    private String slug;
+    private Long producerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isDeleted;

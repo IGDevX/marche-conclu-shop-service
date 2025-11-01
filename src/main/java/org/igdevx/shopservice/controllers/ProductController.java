@@ -30,14 +30,20 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    @Operation(summary = "Get all products", description = "Retrieve a list of all non-deleted products")
+    @Operation(summary = "Get all products", description = "Retrieve a list of all non-deleted products, optionally filtered by producer ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list of products"),
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> products = productService.getAllProducts();
+    public ResponseEntity<List<ProductResponse>> getAllProducts(
+            @RequestParam(required = false) Long producerId) {
+        List<ProductResponse> products;
+        if (producerId != null) {
+            products = productService.getProductsByProducerId(producerId);
+        } else {
+            products = productService.getAllProducts();
+        }
         return ResponseEntity.ok(products);
     }
 
@@ -75,13 +81,38 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    @GetMapping("/category/{categoryId}")
-    @Operation(summary = "Get products by category", description = "Retrieve all products in a specific category")
+    @GetMapping("/producer/{producerId}")
+    @Operation(summary = "Get products by producer", description = "Retrieve all products from a specific producer, optionally filtered by shelf")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved products")
     })
-    public ResponseEntity<List<ProductResponse>> getProductsByCategory(@PathVariable Long categoryId) {
-        List<ProductResponse> products = productService.getProductsByCategory(categoryId);
+    public ResponseEntity<List<ProductResponse>> getProductsByProducer(
+            @PathVariable Long producerId,
+            @RequestParam(required = false) Long shelfId,
+            @RequestParam(required = false, defaultValue = "false") Boolean availableOnly) {
+        List<ProductResponse> products;
+        
+        if (shelfId != null) {
+            // Filter by producer and shelf
+            products = productService.getProductsByProducerIdAndShelfId(producerId, shelfId);
+        } else if (availableOnly) {
+            // Filter by producer, only available products
+            products = productService.getAvailableProductsByProducerId(producerId);
+        } else {
+            // All products from producer
+            products = productService.getProductsByProducerId(producerId);
+        }
+        
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/shelf/{shelfId}")
+    @Operation(summary = "Get products by shelf", description = "Retrieve all products in a specific shelf")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved products")
+    })
+    public ResponseEntity<List<ProductResponse>> getProductsByShelf(@PathVariable Long shelfId) {
+        List<ProductResponse> products = productService.getProductsByShelf(shelfId);
         return ResponseEntity.ok(products);
     }
 

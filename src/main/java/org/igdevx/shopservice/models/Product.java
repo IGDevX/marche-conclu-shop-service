@@ -38,8 +38,8 @@ public class Product extends BaseEntity {
     private Unit unit;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private ProductCategory category;
+    @JoinColumn(name = "shelf_id", nullable = false)
+    private Shelf shelf;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -66,4 +66,12 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private Boolean isAvailable = true;
+
+    /**
+     * Producer identifier - references a user from the user-service microservice.
+     * Temporary field until user-service integration is complete.
+     * Once the gateway is implemented, this will be validated against the user-service.
+     */
+    @Column(name = "producer_id", nullable = false)
+    private Long producerId;
 }

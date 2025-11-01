@@ -16,20 +16,22 @@ CREATE INDEX IF NOT EXISTS idx_product_certification_is_deleted ON product_certi
 
 -- Rename deleted_at to is_deleted for product_category table for consistency
 -- First, add the new column
-ALTER TABLE product_category
+-- Rename deleted_at to is_deleted for shelf table for consistency
+-- First, add the new column
+ALTER TABLE shelf
     ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- Set is_deleted to true where deleted_at is not null
-UPDATE product_category
+UPDATE shelf
 SET is_deleted = TRUE
 WHERE deleted_at IS NOT NULL;
 
 -- Drop the old deleted_at column
-ALTER TABLE product_category
+ALTER TABLE shelf
     DROP COLUMN IF EXISTS deleted_at;
 
 -- Add index on is_deleted for faster queries
-CREATE INDEX IF NOT EXISTS idx_product_category_is_deleted ON product_category(is_deleted);
+CREATE INDEX IF NOT EXISTS idx_shelf_is_deleted ON shelf(is_deleted);
 
 -- Create trigger function to automatically update updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -55,8 +57,9 @@ CREATE TRIGGER update_product_certification_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Create triggers for product_category table
-DROP TRIGGER IF EXISTS update_product_category_updated_at ON product_category;
-CREATE TRIGGER update_product_category_updated_at
-    BEFORE UPDATE ON product_category
+-- Create triggers for shelf table
+DROP TRIGGER IF EXISTS update_shelf_updated_at ON shelf;
+CREATE TRIGGER update_shelf_updated_at
+    BEFORE UPDATE ON shelf
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();

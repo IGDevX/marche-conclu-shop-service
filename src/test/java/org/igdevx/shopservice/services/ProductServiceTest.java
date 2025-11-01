@@ -36,7 +36,7 @@ class ProductServiceTest {
     private UnitRepository unitRepository;
 
     @Mock
-    private ProductCategoryRepository categoryRepository;
+    private ShelfRepository shelfRepository;
 
     @Mock
     private ProductCertificationRepository certificationRepository;
@@ -55,7 +55,7 @@ class ProductServiceTest {
     private ProductResponse productResponse;
     private org.igdevx.shopservice.models.Currency testCurrency;
     private Unit unit;
-    private ProductCategory category;
+    private Shelf shelf;
     private ProductCertification certification;
 
     @BeforeEach
@@ -73,10 +73,10 @@ class ProductServiceTest {
                 .label("Kilogram")
                 .build();
 
-        category = ProductCategory.builder()
+        shelf = Shelf.builder()
                 .id(1L)
                 .label("Fruits")
-                .slug("fruits")
+                .producerId(1L)
                 .build();
 
         certification = ProductCertification.builder()
@@ -91,7 +91,7 @@ class ProductServiceTest {
                 .price(new BigDecimal("2.50"))
                 .currency(testCurrency)
                 .unit(unit)
-                .category(category)
+                .shelf(shelf)
                 .certifications(new HashSet<>(Arrays.asList(certification)))
                 .isFresh(true)
                 .isAvailable(true)
@@ -103,7 +103,7 @@ class ProductServiceTest {
                 .price(new BigDecimal("2.50"))
                 .currencyId(1L)
                 .unitId(1L)
-                .categoryId(1L)
+                .shelfId(1L)
                 .certificationIds(new HashSet<>(Arrays.asList(1L)))
                 .isFresh(true)
                 .isAvailable(true)
@@ -197,19 +197,19 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("Should return products by category")
-    void getProductsByCategory_ShouldReturnProductsInCategory() {
+    @DisplayName("Should return products by shelf")
+    void getProductsByShelf_ShouldReturnProductsInShelf() {
         // Given
         List<Product> products = Arrays.asList(product);
-        when(productRepository.findByCategoryId(1L)).thenReturn(products);
+        when(productRepository.findByShelfId(1L)).thenReturn(products);
         when(productMapper.toResponse(product)).thenReturn(productResponse);
 
         // When
-        List<ProductResponse> result = productService.getProductsByCategory(1L);
+        List<ProductResponse> result = productService.getProductsByShelf(1L);
 
         // Then
         assertThat(result).hasSize(1);
-        verify(productRepository, times(1)).findByCategoryId(1L);
+        verify(productRepository, times(1)).findByShelfId(1L);
     }
 
     @Test
@@ -234,7 +234,7 @@ class ProductServiceTest {
         // Given
         when(currencyRepository.findById(1L)).thenReturn(Optional.of(testCurrency));
         when(unitRepository.findById(1L)).thenReturn(Optional.of(unit));
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(shelfRepository.findById(1L)).thenReturn(Optional.of(shelf));
         when(certificationRepository.findById(1L)).thenReturn(Optional.of(certification));
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(productMapper.toResponse(product)).thenReturn(productResponse);
@@ -247,7 +247,7 @@ class ProductServiceTest {
         verify(productRepository, times(1)).save(any(Product.class));
         verify(currencyRepository, times(1)).findById(1L);
         verify(unitRepository, times(1)).findById(1L);
-        verify(categoryRepository, times(1)).findById(1L);
+        verify(shelfRepository, times(1)).findById(1L);
         verify(certificationRepository, times(1)).findById(1L);
     }
 
@@ -330,10 +330,6 @@ class ProductServiceTest {
     void updateProduct_WhenExists_ShouldUpdateProduct() {
         // Given
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(currencyRepository.findById(1L)).thenReturn(Optional.of(testCurrency));
-        when(unitRepository.findById(1L)).thenReturn(Optional.of(unit));
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-        when(certificationRepository.findById(1L)).thenReturn(Optional.of(certification));
         when(productRepository.save(product)).thenReturn(product);
         when(productMapper.toResponse(product)).thenReturn(productResponse);
         doNothing().when(productMapper).updateBasicFields(product, productRequest);
