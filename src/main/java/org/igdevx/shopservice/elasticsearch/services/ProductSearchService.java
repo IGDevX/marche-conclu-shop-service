@@ -315,12 +315,12 @@ public class ProductSearchService {
                 break;
             case "title_asc":
                 queryBuilder.withSort(co.elastic.clients.elasticsearch._types.SortOptions.of(s -> s
-                        .field(f -> f.field("title.keyword").order(SortOrder.Asc))
+                        .field(f -> f.field("title").order(SortOrder.Asc))
                 ));
                 break;
             case "title_desc":
                 queryBuilder.withSort(co.elastic.clients.elasticsearch._types.SortOptions.of(s -> s
-                        .field(f -> f.field("title.keyword").order(SortOrder.Desc))
+                        .field(f -> f.field("title").order(SortOrder.Desc))
                 ));
                 break;
             default:
