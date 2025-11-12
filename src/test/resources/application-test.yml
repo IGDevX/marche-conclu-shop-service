@@ -1,12 +1,20 @@
 server:
-  port: 5020
+  port: 0  # Random port for tests
 
 spring:
+  application:
+    name: shop-service-test
+
+  # Datasource configuration - will be overridden by Testcontainers via @DynamicPropertySource
   datasource:
-    url: jdbc:postgresql://localhost:5432/shop_service_test
-    username: user
-    password: pwd
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 10000
+      idle-timeout: 30000
+      max-lifetime: 60000
+      auto-commit: true
 
   flyway:
     enabled: true
@@ -18,7 +26,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false  # Reduce noise in test logs
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        jdbc:
+          time_zone: UTC
 
   cloud:
     config:

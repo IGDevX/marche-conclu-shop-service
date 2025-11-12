@@ -1,0 +1,9 @@
+# Documentation importante à versionner
+
+# Architecture de tests
+!TESTING.md
+!QUICK_TEST_REFERENCE.md
+
+# Documentation technique (garder ces fichiers)
+# Les autres fichiers .md dans docs/ peuvent être ignorés
+

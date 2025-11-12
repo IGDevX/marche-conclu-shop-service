@@ -35,11 +35,13 @@ public class ProductRequest {
     @NotNull(message = "Shelf is required")
     private Long shelfId;
 
+    @NotNull(message = "Category is required")
+    private Long categoryId;
+
     private Set<Long> certificationIds;
 
     private Boolean isFresh;
 
-    private Boolean isAvailable;
 
     @NotNull(message = "Producer ID is required")
     private Long producerId;

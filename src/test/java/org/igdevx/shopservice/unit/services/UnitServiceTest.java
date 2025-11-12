@@ -1,5 +1,6 @@
-package org.igdevx.shopservice.services;
+package org.igdevx.shopservice.unit.services;
 
+import org.igdevx.shopservice.UnitTest;
 import org.igdevx.shopservice.dtos.UnitRequest;
 import org.igdevx.shopservice.dtos.UnitResponse;
 import org.igdevx.shopservice.exceptions.DuplicateResourceException;
@@ -7,6 +8,7 @@ import org.igdevx.shopservice.exceptions.ResourceNotFoundException;
 import org.igdevx.shopservice.mappers.UnitMapper;
 import org.igdevx.shopservice.models.Unit;
 import org.igdevx.shopservice.repositories.UnitRepository;
+import org.igdevx.shopservice.services.UnitService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+@UnitTest
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Unit Service Tests")

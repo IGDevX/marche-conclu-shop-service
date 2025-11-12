@@ -1,11 +1,14 @@
-package org.igdevx.shopservice.services;
+package org.igdevx.shopservice.unit.services;
 
+import org.igdevx.shopservice.UnitTest;
 import org.igdevx.shopservice.dtos.ProductRequest;
 import org.igdevx.shopservice.dtos.ProductResponse;
 import org.igdevx.shopservice.exceptions.ResourceNotFoundException;
 import org.igdevx.shopservice.mappers.ProductMapper;
 import org.igdevx.shopservice.models.*;
 import org.igdevx.shopservice.repositories.*;
+import org.igdevx.shopservice.services.ImageStorageService;
+import org.igdevx.shopservice.services.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Product Service Tests")
 class ProductServiceTest {
@@ -47,6 +51,12 @@ class ProductServiceTest {
     @Mock
     private ImageStorageService imageStorageService;
 
+    @Mock
+    private org.igdevx.shopservice.elasticsearch.services.ProductIndexService productIndexService;
+
+    @Mock
+    private CategoryRepository categoryRepository;
+
     @InjectMocks
     private ProductService productService;
 
@@ -56,6 +66,7 @@ class ProductServiceTest {
     private org.igdevx.shopservice.models.Currency testCurrency;
     private Unit unit;
     private Shelf shelf;
+    private Category category;
     private ProductCertification certification;
 
     @BeforeEach
@@ -79,6 +90,12 @@ class ProductServiceTest {
                 .producerId(1L)
                 .build();
 
+        category = Category.builder()
+                .id(3L)
+                .name("Fruits & Vegetables")
+                .slug("fruits-vegetables")
+                .build();
+
         certification = ProductCertification.builder()
                 .id(1L)
                 .label("Organic")
@@ -91,10 +108,10 @@ class ProductServiceTest {
                 .price(new BigDecimal("2.50"))
                 .currency(testCurrency)
                 .unit(unit)
+                .category(category)
                 .shelf(shelf)
                 .certifications(new HashSet<>(Arrays.asList(certification)))
                 .isFresh(true)
-                .isAvailable(true)
                 .build();
 
         productRequest = ProductRequest.builder()
@@ -103,10 +120,10 @@ class ProductServiceTest {
                 .price(new BigDecimal("2.50"))
                 .currencyId(1L)
                 .unitId(1L)
+                .categoryId(3L)
                 .shelfId(1L)
                 .certificationIds(new HashSet<>(Arrays.asList(1L)))
                 .isFresh(true)
-                .isAvailable(true)
                 .build();
 
         productResponse = ProductResponse.builder()
@@ -114,7 +131,6 @@ class ProductServiceTest {
                 .title("Organic Bananas")
                 .price(new BigDecimal("2.50"))
                 .isFresh(true)
-                .isAvailable(true)
                 .build();
     }
 
@@ -164,21 +180,6 @@ class ProductServiceTest {
         verify(productRepository, times(1)).findById(999L);
     }
 
-    @Test
-    @DisplayName("Should return all available products")
-    void getAllAvailableProducts_ShouldReturnOnlyAvailable() {
-        // Given
-        List<Product> products = Arrays.asList(product);
-        when(productRepository.findAllAvailable()).thenReturn(products);
-        when(productMapper.toResponse(product)).thenReturn(productResponse);
-
-        // When
-        List<ProductResponse> result = productService.getAllAvailableProducts();
-
-        // Then
-        assertThat(result).hasSize(1);
-        verify(productRepository, times(1)).findAllAvailable();
-    }
 
     @Test
     @DisplayName("Should return all fresh products")
@@ -234,6 +235,7 @@ class ProductServiceTest {
         // Given
         when(currencyRepository.findById(1L)).thenReturn(Optional.of(testCurrency));
         when(unitRepository.findById(1L)).thenReturn(Optional.of(unit));
+        when(categoryRepository.findById(3L)).thenReturn(Optional.of(category));
         when(shelfRepository.findById(1L)).thenReturn(Optional.of(shelf));
         when(certificationRepository.findById(1L)).thenReturn(Optional.of(certification));
         when(productRepository.save(any(Product.class))).thenReturn(product);
@@ -330,6 +332,7 @@ class ProductServiceTest {
     void updateProduct_WhenExists_ShouldUpdateProduct() {
         // Given
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(certificationRepository.findById(1L)).thenReturn(Optional.of(certification));
         when(productRepository.save(product)).thenReturn(product);
         when(productMapper.toResponse(product)).thenReturn(productResponse);
         doNothing().when(productMapper).updateBasicFields(product, productRequest);

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.igdevx.shopservice.dtos.ProductRequest;
 import org.igdevx.shopservice.dtos.ProductResponse;
+import org.igdevx.shopservice.elasticsearch.services.ProductIndexService;
 import org.igdevx.shopservice.exceptions.ResourceNotFoundException;
 import org.igdevx.shopservice.mappers.ProductMapper;
 import org.igdevx.shopservice.models.*;
@@ -27,9 +28,11 @@ public class ProductService {
     private final CurrencyRepository currencyRepository;
     private final UnitRepository unitRepository;
     private final ShelfRepository shelfRepository;
+    private final CategoryRepository categoryRepository;
     private final ProductCertificationRepository certificationRepository;
     private final ProductMapper productMapper;
     private final ImageStorageService imageStorageService;
+    private final ProductIndexService productIndexService;
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
@@ -46,15 +49,6 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
         return productMapper.toResponse(product);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProductResponse> getAllAvailableProducts() {
-        log.debug("Fetching all available products");
-        return productRepository.findAllAvailable()
-                .stream()
-                .map(productMapper::toResponse)
-                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -97,6 +91,9 @@ public class ProductService {
 
         Shelf shelf = shelfRepository.findById(request.getShelfId())
                 .orElseThrow(() -> new ResourceNotFoundException("Shelf not found with id: " + request.getShelfId()));
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
+
 
         // Fetch certifications if provided
         Set<ProductCertification> certifications = new HashSet<>();
@@ -111,17 +108,21 @@ public class ProductService {
         Product product = Product.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .category(category)
                 .price(request.getPrice())
                 .currency(currency)
                 .unit(unit)
                 .shelf(shelf)
                 .certifications(certifications)
                 .isFresh(request.getIsFresh() != null ? request.getIsFresh() : false)
-                .isAvailable(request.getIsAvailable() != null ? request.getIsAvailable() : true)
                 .producerId(request.getProducerId())
                 .build();
 
         Product savedProduct = productRepository.save(product);
+
+        // Index in Elasticsearch asynchronously (non-blocking)
+        productIndexService.indexProductAsync(savedProduct);
+
         log.info("Product created with id: {}", savedProduct.getId());
         return productMapper.toResponse(savedProduct);
     }
@@ -146,6 +147,10 @@ public class ProductService {
         product.setImageUrl(imageUrl);
 
         Product updatedProduct = productRepository.save(product);
+
+        // Update Elasticsearch index asynchronously
+        productIndexService.indexProductAsync(updatedProduct);
+
         log.info("Image uploaded for product: {}", productId);
         return productMapper.toResponse(updatedProduct);
     }
@@ -174,6 +179,12 @@ public class ProductService {
         }
 
         if (!product.getShelf().getId().equals(request.getShelfId())) {
+        if (!product.getCategory().getId().equals(request.getCategoryId())) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
+            product.setCategory(category);
+        }
+
             Shelf shelf = shelfRepository.findById(request.getShelfId())
                     .orElseThrow(() -> new ResourceNotFoundException("Shelf not found with id: " + request.getShelfId()));
             product.setShelf(shelf);
@@ -189,6 +200,10 @@ public class ProductService {
         }
 
         Product updatedProduct = productRepository.save(product);
+
+        // Update Elasticsearch index asynchronously
+        productIndexService.indexProductAsync(updatedProduct);
+
         log.info("Product updated with id: {}", id);
         return productMapper.toResponse(updatedProduct);
     }
@@ -202,6 +217,10 @@ public class ProductService {
 
         product.softDelete();
         productRepository.save(product);
+
+        // Update Elasticsearch index to reflect deleted status asynchronously
+        productIndexService.indexProductAsync(product);
+
         log.info("Product soft deleted with id: {}", id);
     }
 
@@ -218,6 +237,10 @@ public class ProductService {
 
         product.restore();
         productRepository.save(product);
+
+        // Update Elasticsearch index to reflect restored status asynchronously
+        productIndexService.indexProductAsync(product);
+
         log.info("Product restored with id: {}", id);
     }
 
@@ -234,6 +257,10 @@ public class ProductService {
         }
 
         productRepository.hardDeleteById(id);
+
+        // Delete from Elasticsearch index asynchronously
+        productIndexService.deleteFromIndexAsync(id);
+
         log.info("Product hard deleted with id: {}", id);
     }
 
@@ -256,18 +283,30 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> getAvailableProductsByProducerId(Long producerId) {
-        log.debug("Fetching available products for producer: {}", producerId);
-        return productRepository.findByProducerIdAndIsAvailable(producerId)
+    public List<ProductResponse> getProductsByProducerIdAndShelfId(Long producerId, Long shelfId) {
+        log.debug("Fetching products for producer: {} and shelf: {}", producerId, shelfId);
+        return productRepository.findByProducerIdAndShelfId(producerId, shelfId)
                 .stream()
                 .map(productMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> getProductsByProducerIdAndShelfId(Long producerId, Long shelfId) {
-        log.debug("Fetching products for producer: {} and shelf: {}", producerId, shelfId);
-        return productRepository.findByProducerIdAndShelfId(producerId, shelfId)
+    public List<ProductResponse> getProductsByCategoryId(Long categoryId) {
+        log.debug("Fetching products for category: {}", categoryId);
+        return productRepository.findByCategoryId(categoryId)
+                .stream()
+                .map(productMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getProductsByCategoryIds(List<Long> categoryIds) {
+        log.debug("Fetching products for categories: {}", categoryIds);
+        if (categoryIds == null || categoryIds.isEmpty()) {
+            return getAllProducts();
+        }
+        return productRepository.findByCategoryIdIn(categoryIds)
                 .stream()
                 .map(productMapper::toResponse)
                 .collect(Collectors.toList());

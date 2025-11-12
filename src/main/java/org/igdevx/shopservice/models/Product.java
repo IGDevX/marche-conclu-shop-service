@@ -41,6 +41,10 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "shelf_id", nullable = false)
     private Shelf shelf;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "product_certification_link",
@@ -63,9 +67,6 @@ public class Product extends BaseEntity {
     @Builder.Default
     private Boolean isFresh = false;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean isAvailable = true;
 
     /**
      * Producer identifier - references a user from the user-service microservice.
