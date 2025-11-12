@@ -13,15 +13,18 @@ public class ProductMapper {
     private final CurrencyMapper currencyMapper;
     private final UnitMapper unitMapper;
     private final ShelfMapper shelfMapper;
+    private final CategoryMapper categoryMapper;
     private final ProductCertificationMapper certificationMapper;
 
     public ProductMapper(CurrencyMapper currencyMapper,
                         UnitMapper unitMapper,
                         ShelfMapper shelfMapper,
+                        CategoryMapper categoryMapper,
                         ProductCertificationMapper certificationMapper) {
         this.currencyMapper = currencyMapper;
         this.unitMapper = unitMapper;
         this.shelfMapper = shelfMapper;
+        this.categoryMapper = categoryMapper;
         this.certificationMapper = certificationMapper;
     }
 
@@ -35,6 +38,7 @@ public class ProductMapper {
                 .title(product.getTitle())
                 .description(product.getDescription())
                 .price(product.getPrice())
+                .category(categoryMapper.toResponse(product.getCategory()))
                 .currency(currencyMapper.toResponse(product.getCurrency()))
                 .unit(unitMapper.toResponse(product.getUnit()))
                 .shelf(shelfMapper.toResponse(product.getShelf()))
@@ -47,7 +51,6 @@ public class ProductMapper {
                 .imageKey(product.getImageKey())
                 .imageThumbnailUrl(product.getImageThumbnailUrl())
                 .isFresh(product.getIsFresh())
-                .isAvailable(product.getIsAvailable())
                 .producerId(product.getProducerId())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
@@ -64,7 +67,6 @@ public class ProductMapper {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setIsFresh(request.getIsFresh() != null ? request.getIsFresh() : false);
-        product.setIsAvailable(request.getIsAvailable() != null ? request.getIsAvailable() : true);
         product.setProducerId(request.getProducerId());
     }
 }

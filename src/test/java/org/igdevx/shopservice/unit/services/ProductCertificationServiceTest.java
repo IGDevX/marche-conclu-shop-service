@@ -1,5 +1,6 @@
-package org.igdevx.shopservice.services;
+package org.igdevx.shopservice.unit.services;
 
+import org.igdevx.shopservice.UnitTest;
 import org.igdevx.shopservice.dtos.ProductCertificationRequest;
 import org.igdevx.shopservice.dtos.ProductCertificationResponse;
 import org.igdevx.shopservice.exceptions.DuplicateResourceException;
@@ -7,6 +8,7 @@ import org.igdevx.shopservice.exceptions.ResourceNotFoundException;
 import org.igdevx.shopservice.mappers.ProductCertificationMapper;
 import org.igdevx.shopservice.models.ProductCertification;
 import org.igdevx.shopservice.repositories.ProductCertificationRepository;
+import org.igdevx.shopservice.services.ProductCertificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ProductCertification Service Tests")
 class ProductCertificationServiceTest {
