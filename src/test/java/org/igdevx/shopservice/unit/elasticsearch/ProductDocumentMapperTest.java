@@ -199,8 +199,8 @@ class ProductDocumentMapperTest {
             ProductDocument document = mapper.toDocument(product);
 
             // Then
-            assertThat(document.getImageUrl()).isEqualTo("http://example.com/tomato.jpg");
-            assertThat(document.getImageThumbnailUrl()).isEqualTo("http://example.com/tomato_thumb.jpg");
+            assertThat(document.getMainImageUrl()).isEqualTo("http://example.com/tomato.jpg");
+            assertThat(document.getMainImageId()).isNotNull();
         }
 
         @Test
@@ -278,9 +278,8 @@ class ProductDocumentMapperTest {
         product.setIsFresh(true);
         product.setProducerId(100L);
         product.setCertifications(Set.of(cert1, cert2));
-        product.setImageUrl("http://example.com/tomato.jpg");
-        product.setImageThumbnailUrl("http://example.com/tomato_thumb.jpg");
-        product.setImageKey("tomato.jpg");
+        product.setMainImageId(java.util.UUID.randomUUID());
+        product.setMainImageUrl("http://example.com/tomato.jpg");
         product.setIsDeleted(false);
         product.setCreatedAt(LocalDateTime.now());
         product.setUpdatedAt(LocalDateTime.now());

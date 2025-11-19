@@ -18,12 +18,9 @@ import org.igdevx.shopservice.services.ProductService;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -138,23 +135,6 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
-    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload product image", description = "Upload an image for an existing product")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Image uploaded successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid file or file format",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Product not found",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    public ResponseEntity<ProductResponse> uploadProductImage(
-            @PathVariable Long id,
-            @RequestParam("image") MultipartFile imageFile) throws IOException {
-        ProductResponse product = productService.uploadProductImage(id, imageFile);
-        return ResponseEntity.ok(product);
-    }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a product", description = "Update an existing product by ID")

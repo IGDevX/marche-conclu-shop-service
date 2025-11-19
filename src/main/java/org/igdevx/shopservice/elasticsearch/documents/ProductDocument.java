@@ -63,10 +63,10 @@ public class ProductDocument {
     private Set<Long> certificationIds;
 
     @Field(type = FieldType.Keyword)
-    private String imageUrl;
+    private String mainImageId;
 
     @Field(type = FieldType.Keyword)
-    private String imageThumbnailUrl;
+    private String mainImageUrl;
 
     @Field(type = FieldType.Boolean)
     private Boolean isFresh;

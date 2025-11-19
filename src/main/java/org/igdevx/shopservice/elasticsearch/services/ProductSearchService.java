@@ -277,7 +277,7 @@ public class ProductSearchService {
                     return ProductSuggestion.builder()
                             .id(doc.getId())
                             .title(doc.getTitle())
-                            .imageUrl(doc.getImageThumbnailUrl() != null ? doc.getImageThumbnailUrl() : doc.getImageUrl())
+                            .imageUrl(doc.getMainImageUrl())
                             .build();
                 })
                 .collect(Collectors.toList());

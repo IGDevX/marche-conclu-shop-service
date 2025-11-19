@@ -11,9 +11,7 @@ import org.igdevx.shopservice.models.*;
 import org.igdevx.shopservice.repositories.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +29,6 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductCertificationRepository certificationRepository;
     private final ProductMapper productMapper;
-    private final ImageStorageService imageStorageService;
     private final ProductIndexService productIndexService;
 
     @Transactional(readOnly = true)
@@ -127,33 +124,6 @@ public class ProductService {
         return productMapper.toResponse(savedProduct);
     }
 
-    @Transactional
-    public ProductResponse uploadProductImage(Long productId, MultipartFile imageFile) throws IOException {
-        log.debug("Uploading image for product: {}", productId);
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
-
-        // Delete old image if exists
-        if (product.getImageKey() != null) {
-            imageStorageService.deleteImage(product.getImageKey());
-        }
-
-        // Upload new image
-        String imageKey = imageStorageService.uploadImage(imageFile);
-        String imageUrl = imageStorageService.getImageUrl(imageKey);
-
-        product.setImageKey(imageKey);
-        product.setImageUrl(imageUrl);
-
-        Product updatedProduct = productRepository.save(product);
-
-        // Update Elasticsearch index asynchronously
-        productIndexService.indexProductAsync(updatedProduct);
-
-        log.info("Image uploaded for product: {}", productId);
-        return productMapper.toResponse(updatedProduct);
-    }
 
     @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
@@ -251,10 +221,6 @@ public class ProductService {
         Product product = productRepository.findByIdIncludingDeleted(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        // Delete image if exists
-        if (product.getImageKey() != null) {
-            imageStorageService.deleteImage(product.getImageKey());
-        }
 
         productRepository.hardDeleteById(id);
 

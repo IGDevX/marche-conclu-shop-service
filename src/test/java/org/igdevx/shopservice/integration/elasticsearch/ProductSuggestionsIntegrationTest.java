@@ -50,8 +50,7 @@ class ProductSuggestionsIntegrationTest extends ElasticsearchIntegrationTestBase
                 .certificationIds(Set.of())
                 .isFresh(false)
                 .producerId(1L)
-                .imageUrl("http://example.com/iphone.jpg")
-                .imageThumbnailUrl("http://example.com/iphone_thumb.jpg")
+                .mainImageUrl("http://example.com/iphone.jpg")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
@@ -74,8 +73,7 @@ class ProductSuggestionsIntegrationTest extends ElasticsearchIntegrationTestBase
                 .certificationIds(Set.of())
                 .isFresh(false)
                 .producerId(1L)
-                .imageUrl("http://example.com/macbook.jpg")
-                .imageThumbnailUrl("http://example.com/macbook_thumb.jpg")
+                .mainImageUrl("http://example.com/macbook.jpg")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
@@ -98,8 +96,7 @@ class ProductSuggestionsIntegrationTest extends ElasticsearchIntegrationTestBase
                 .certificationIds(Set.of())
                 .isFresh(false)
                 .producerId(1L)
-                .imageUrl("http://example.com/airpods.jpg")
-                .imageThumbnailUrl("http://example.com/airpods_thumb.jpg")
+                .mainImageUrl("http://example.com/airpods.jpg")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
@@ -122,8 +119,7 @@ class ProductSuggestionsIntegrationTest extends ElasticsearchIntegrationTestBase
                 .certificationIds(Set.of(1L))
                 .isFresh(true)
                 .producerId(2L)
-                .imageUrl("http://example.com/apples.jpg")
-                .imageThumbnailUrl("http://example.com/apples_thumb.jpg")
+                .mainImageUrl("http://example.com/apples.jpg")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
@@ -146,8 +142,7 @@ class ProductSuggestionsIntegrationTest extends ElasticsearchIntegrationTestBase
                 .certificationIds(Set.of(2L))
                 .isFresh(true)
                 .producerId(2L)
-                .imageUrl("http://example.com/banana.jpg")
-                .imageThumbnailUrl("http://example.com/banana_thumb.jpg")
+                .mainImageUrl("http://example.com/banana.jpg")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
@@ -170,8 +165,7 @@ class ProductSuggestionsIntegrationTest extends ElasticsearchIntegrationTestBase
                 .certificationIds(Set.of())
                 .isFresh(false)
                 .producerId(3L)
-                .imageUrl("http://example.com/book.jpg")
-                .imageThumbnailUrl("http://example.com/book_thumb.jpg")
+                .mainImageUrl("http://example.com/book.jpg")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
@@ -195,8 +189,7 @@ class ProductSuggestionsIntegrationTest extends ElasticsearchIntegrationTestBase
                 .certificationIds(Set.of())
                 .isFresh(false)
                 .producerId(1L)
-                .imageUrl("http://example.com/watch.jpg")
-                .imageThumbnailUrl("http://example.com/watch_thumb.jpg")
+                .mainImageUrl("http://example.com/watch.jpg")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(true)
@@ -264,22 +257,24 @@ class ProductSuggestionsIntegrationTest extends ElasticsearchIntegrationTestBase
     }
 
     @Test
-    void shouldPreferThumbnailOverFullImage() {
-        // Given - User types "macbook" (has thumbnail)
+    void shouldReturnMainImageUrlForProduct() {
+        // Given - User types "macbook"
         String query = "macbook";
         int size = 10;
 
         // When
         List<ProductSuggestion> suggestions = productSearchService.getSuggestions(query, size);
 
-        // Then - Should return thumbnail URL
+        // Then - Should return main image URL
         assertThat(suggestions).isNotEmpty();
         ProductSuggestion macbookSuggestion = suggestions.stream()
                 .filter(s -> s.getTitle().contains("MacBook"))
                 .findFirst()
                 .orElseThrow();
 
-        assertThat(macbookSuggestion.getImageUrl()).contains("thumb");
+        assertThat(macbookSuggestion.getImageUrl())
+                .isNotNull()
+                .isEqualTo("http://example.com/macbook.jpg");
     }
 
     @Test

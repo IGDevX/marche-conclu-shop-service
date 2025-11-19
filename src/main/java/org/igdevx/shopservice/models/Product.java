@@ -54,14 +54,11 @@ public class Product extends BaseEntity {
     @Builder.Default
     private Set<ProductCertification> certifications = new HashSet<>();
 
-    @Column(length = 500)
-    private String imageUrl;
+    @Column(name = "main_image_id")
+    private java.util.UUID mainImageId;
 
-    @Column(length = 255)
-    private String imageKey;
-
-    @Column(length = 500)
-    private String imageThumbnailUrl;
+    @Column(name = "main_image_url", length = 500)
+    private String mainImageUrl;
 
     @Column(nullable = false)
     @Builder.Default

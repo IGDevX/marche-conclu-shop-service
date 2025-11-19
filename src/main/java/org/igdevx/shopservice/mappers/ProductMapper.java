@@ -47,9 +47,8 @@ public class ProductMapper {
                         .map(certificationMapper::toResponse)
                         .collect(Collectors.toSet())
                         : null)
-                .imageUrl(product.getImageUrl())
-                .imageKey(product.getImageKey())
-                .imageThumbnailUrl(product.getImageThumbnailUrl())
+                .mainImageId(product.getMainImageId())
+                .mainImageUrl(product.getMainImageUrl())
                 .isFresh(product.getIsFresh())
                 .producerId(product.getProducerId())
                 .createdAt(product.getCreatedAt())
@@ -68,5 +67,7 @@ public class ProductMapper {
         product.setPrice(request.getPrice());
         product.setIsFresh(request.getIsFresh() != null ? request.getIsFresh() : false);
         product.setProducerId(request.getProducerId());
+        product.setMainImageId(request.getMainImageId());
+        product.setMainImageUrl(request.getMainImageUrl());
     }
 }

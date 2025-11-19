@@ -7,7 +7,6 @@ import org.igdevx.shopservice.exceptions.ResourceNotFoundException;
 import org.igdevx.shopservice.mappers.ProductMapper;
 import org.igdevx.shopservice.models.*;
 import org.igdevx.shopservice.repositories.*;
-import org.igdevx.shopservice.services.ImageStorageService;
 import org.igdevx.shopservice.services.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
-
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -49,13 +46,10 @@ class ProductServiceTest {
     private ProductMapper productMapper;
 
     @Mock
-    private ImageStorageService imageStorageService;
+    private CategoryRepository categoryRepository;
 
     @Mock
     private org.igdevx.shopservice.elasticsearch.services.ProductIndexService productIndexService;
-
-    @Mock
-    private CategoryRepository categoryRepository;
 
     @InjectMocks
     private ProductService productService;
@@ -267,67 +261,6 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("Should upload product image successfully")
-    void uploadProductImage_WithValidImage_ShouldUploadAndUpdateProduct() throws Exception {
-        // Given
-        MockMultipartFile imageFile = new MockMultipartFile(
-                "image",
-                "banana.jpg",
-                "image/jpeg",
-                "test image content".getBytes()
-        );
-
-        String imageKey = "products/uuid-123.jpg";
-        String imageUrl = "http://localhost:9000/product-images/" + imageKey;
-
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(imageStorageService.uploadImage(imageFile)).thenReturn(imageKey);
-        when(imageStorageService.getImageUrl(imageKey)).thenReturn(imageUrl);
-        when(productRepository.save(any(Product.class))).thenReturn(product);
-        when(productMapper.toResponse(product)).thenReturn(productResponse);
-
-        // When
-        ProductResponse result = productService.uploadProductImage(1L, imageFile);
-
-        // Then
-        assertThat(result).isNotNull();
-        verify(imageStorageService, times(1)).uploadImage(imageFile);
-        verify(productRepository, times(1)).save(product);
-        assertThat(product.getImageKey()).isEqualTo(imageKey);
-        assertThat(product.getImageUrl()).isEqualTo(imageUrl);
-    }
-
-    @Test
-    @DisplayName("Should delete old image when uploading new one")
-    void uploadProductImage_WithExistingImage_ShouldDeleteOldImage() throws Exception {
-        // Given
-        product.setImageKey("products/old-image.jpg");
-        MockMultipartFile newImageFile = new MockMultipartFile(
-                "image",
-                "new-banana.jpg",
-                "image/jpeg",
-                "new image content".getBytes()
-        );
-
-        String newImageKey = "products/uuid-456.jpg";
-        String newImageUrl = "http://localhost:9000/product-images/" + newImageKey;
-
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        doNothing().when(imageStorageService).deleteImage("products/old-image.jpg");
-        when(imageStorageService.uploadImage(newImageFile)).thenReturn(newImageKey);
-        when(imageStorageService.getImageUrl(newImageKey)).thenReturn(newImageUrl);
-        when(productRepository.save(any(Product.class))).thenReturn(product);
-        when(productMapper.toResponse(product)).thenReturn(productResponse);
-
-        // When
-        productService.uploadProductImage(1L, newImageFile);
-
-        // Then
-        verify(imageStorageService, times(1)).deleteImage("products/old-image.jpg");
-        verify(imageStorageService, times(1)).uploadImage(newImageFile);
-    }
-
-    @Test
     @DisplayName("Should update product successfully")
     void updateProduct_WhenExists_ShouldUpdateProduct() {
         // Given
@@ -392,12 +325,10 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("Should hard delete product and its image")
-    void hardDeleteProduct_WithImage_ShouldDeleteProductAndImage() {
+    @DisplayName("Should hard delete product")
+    void hardDeleteProduct_ShouldDeleteProduct() {
         // Given
-        product.setImageKey("products/test-image.jpg");
         when(productRepository.findByIdIncludingDeleted(1L)).thenReturn(Optional.of(product));
-        doNothing().when(imageStorageService).deleteImage("products/test-image.jpg");
         doNothing().when(productRepository).hardDeleteById(1L);
 
         // When
@@ -405,7 +336,6 @@ class ProductServiceTest {
 
         // Then
         verify(productRepository, times(1)).findByIdIncludingDeleted(1L);
-        verify(imageStorageService, times(1)).deleteImage("products/test-image.jpg");
         verify(productRepository, times(1)).hardDeleteById(1L);
     }
 

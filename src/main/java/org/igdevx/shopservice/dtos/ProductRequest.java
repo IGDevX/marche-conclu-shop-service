@@ -42,6 +42,9 @@ public class ProductRequest {
 
     private Boolean isFresh;
 
+    private java.util.UUID mainImageId;
+
+    private String mainImageUrl;
 
     @NotNull(message = "Producer ID is required")
     private Long producerId;

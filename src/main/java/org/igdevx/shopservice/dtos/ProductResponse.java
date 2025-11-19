@@ -26,10 +26,9 @@ public class ProductResponse {
     private CategoryResponse category;
     private Set<ProductCertificationResponse> certifications;
     
-    private String imageUrl;
-    private String imageKey;
-    private String imageThumbnailUrl;
-    
+    private java.util.UUID mainImageId;
+    private String mainImageUrl;
+
     private Boolean isFresh;
 
     private Long producerId;
