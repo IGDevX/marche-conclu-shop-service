@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/product-certifications")
+@RequestMapping("/product-certifications")
 @RequiredArgsConstructor
 @Tag(name = "Product Certifications", description = "Product certification management APIs")
 public class ProductCertificationController {

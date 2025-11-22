@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/shops")
+@RequestMapping("/shops")
 @Tag(name = "Shop", description = "Shop management APIs")
 public class ShopController {
 

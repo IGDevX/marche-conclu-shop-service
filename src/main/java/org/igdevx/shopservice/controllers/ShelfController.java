@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/shelves")
+@RequestMapping("/shelves")
 @RequiredArgsConstructor
 @Tag(name = "Shelves", description = "Shelf management APIs")
 public class ShelfController {
