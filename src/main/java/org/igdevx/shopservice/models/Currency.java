@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "currency")
+// Unique constraint enforced by partial index in database: uq_currency_code_not_deleted
+// Index applies only where is_deleted = FALSE to allow unlimited soft deletes
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +20,7 @@ public class Currency extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 3)
+    @Column(nullable = false, length = 3)
     private String code;
 
     @Column(nullable = false, length = 100)

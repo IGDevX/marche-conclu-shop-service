@@ -5,6 +5,8 @@ import lombok.*;
 
 @Entity
 @Table(name = "product_certification")
+// Unique constraint enforced by partial index in database: uq_certification_label_not_deleted
+// Index applies only where is_deleted = FALSE to allow unlimited soft deletes
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +18,6 @@ public class ProductCertification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String label;
 }

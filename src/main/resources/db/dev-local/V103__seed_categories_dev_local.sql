@@ -53,7 +53,7 @@ INSERT INTO category (name, slug, description, display_order) VALUES
  'Autres produits alimentaires et spécialités. Exemples : plats préparés, soupes, bouillons, sauces cuisinées, produits végétariens/vegan, produits sans gluten, produits bio spécifiques, fleurs comestibles, champignons.',
  13)
 
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (slug) WHERE (is_deleted = FALSE) DO NOTHING;
 
 COMMENT ON TABLE category IS 'Categories seeded for dev-local environment with full descriptions';
 

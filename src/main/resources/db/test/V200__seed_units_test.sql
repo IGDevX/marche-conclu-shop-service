@@ -2,4 +2,4 @@
 INSERT INTO units (code, label) VALUES
     ('kg', 'Kilogram'),
     ('pc', 'Piece')
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) WHERE (is_deleted = FALSE) DO NOTHING;

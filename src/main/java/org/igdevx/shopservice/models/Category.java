@@ -10,6 +10,10 @@ import lombok.*;
  */
 @Entity
 @Table(name = "category")
+// Unique constraints enforced by partial indexes in database:
+// - uq_category_name_not_deleted (name WHERE is_deleted = FALSE)
+// - uq_category_slug_not_deleted (slug WHERE is_deleted = FALSE)
+// Indexes apply only to active categories to allow unlimited soft deletes
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,10 +25,10 @@ public class Category extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String slug;
 
     @Column(columnDefinition = "TEXT")

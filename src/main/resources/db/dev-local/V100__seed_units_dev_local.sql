@@ -8,4 +8,4 @@ INSERT INTO units (code, label) VALUES
     ('box', 'Box'),
     ('dozen', 'Dozen'),
     ('bag', 'Bag')
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) WHERE (is_deleted = FALSE) DO NOTHING;

@@ -113,6 +113,8 @@ public class ProductService {
                 .certifications(certifications)
                 .isFresh(request.getIsFresh() != null ? request.getIsFresh() : false)
                 .producerId(request.getProducerId())
+                .mainImageId(request.getMainImageId())
+                .mainImageUrl(request.getMainImageUrl())
                 .build();
 
         Product savedProduct = productRepository.save(product);

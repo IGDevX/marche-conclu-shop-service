@@ -4,11 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "shelf",
-       uniqueConstraints = {
-           @UniqueConstraint(name = "uq_shelf_producer_label", 
-                           columnNames = {"producer_id", "label"})
-       })
+@Table(name = "shelf")
+// Unique constraint enforced by partial index in database: uq_shelf_producer_label_not_deleted
+// Index applies only where is_deleted = FALSE to allow unlimited soft deletes
 @Getter
 @Setter
 @NoArgsConstructor

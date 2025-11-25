@@ -5,6 +5,8 @@ import lombok.*;
 
 @Entity
 @Table(name = "units")
+// Unique constraint enforced by partial index in database: uq_unit_code_not_deleted
+// Index applies only where is_deleted = FALSE to allow unlimited soft deletes
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,7 +18,7 @@ public class Unit extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, length = 50)
     private String code;
 
     @Column(nullable = false)

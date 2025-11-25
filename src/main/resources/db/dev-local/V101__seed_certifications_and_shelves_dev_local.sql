@@ -7,7 +7,7 @@ INSERT INTO product_certification (label) VALUES
     ('Non-GMO'),
     ('Halal'),
     ('Kosher')
-ON CONFLICT (label) DO NOTHING;
+ON CONFLICT (label) WHERE (is_deleted = FALSE) DO NOTHING;
 
 -- Dev-local mock data for shelves
 -- producer_id = 1 corresponds to a user ID from user-service
@@ -20,4 +20,4 @@ INSERT INTO shelf (label, producer_id) VALUES
     ('Produits Laitiers du Terroir', 1),
     ('Boulangerie Artisanale', 1),
     ('Épicerie Fine', 1)
-ON CONFLICT (producer_id, label) DO NOTHING;
+ON CONFLICT (producer_id, label) WHERE (is_deleted = FALSE) DO NOTHING;
