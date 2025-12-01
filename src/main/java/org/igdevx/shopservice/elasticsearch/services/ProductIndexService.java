@@ -97,6 +97,32 @@ public class ProductIndexService {
     }
 
     /**
+     * Recreate the Elasticsearch index with updated mapping
+     * This should be called when the ProductDocument structure changes
+     */
+    public void recreateIndex() {
+        log.info("Recreating Elasticsearch index with new mapping");
+
+        var indexOps = elasticsearchOperations.indexOps(ProductDocument.class);
+
+        // Delete existing index if it exists
+        if (indexOps.exists()) {
+            log.debug("Deleting existing index");
+            indexOps.delete();
+        }
+
+        // Create new index
+        log.debug("Creating new index");
+        indexOps.create();
+
+        // Put mapping
+        log.debug("Applying new mapping");
+        indexOps.putMapping(indexOps.createMapping());
+
+        log.info("Successfully recreated index with new mapping");
+    }
+
+    /**
      * Check if index exists and has documents
      */
     public long getIndexedProductsCount() {

@@ -11,6 +11,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -56,6 +57,10 @@ public class ProductDocument {
     @Field(type = FieldType.Long)
     private Long categoryId;
 
+    @Field(type = FieldType.Nested, includeInParent = true)
+    private List<CertificationInfo> certifications;
+
+    // Keep these for backward compatibility and easy searching
     @Field(type = FieldType.Keyword)
     private Set<String> certificationNames;
 

@@ -1,5 +1,6 @@
 package org.igdevx.shopservice.elasticsearch.mappers;
 
+import org.igdevx.shopservice.elasticsearch.documents.CertificationInfo;
 import org.igdevx.shopservice.elasticsearch.documents.ProductDocument;
 import org.igdevx.shopservice.models.Product;
 import org.igdevx.shopservice.models.ProductCertification;
@@ -28,6 +29,13 @@ public class ProductDocumentMapper {
                 .shelfId(product.getShelf() != null ? product.getShelf().getId() : null)
                 .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)
                 .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .certifications(product.getCertifications() != null ?
+                        product.getCertifications().stream()
+                                .map(cert -> CertificationInfo.builder()
+                                        .id(cert.getId())
+                                        .label(cert.getLabel())
+                                        .build())
+                                .collect(Collectors.toList()) : null)
                 .certificationNames(product.getCertifications() != null ?
                         product.getCertifications().stream()
                                 .map(ProductCertification::getLabel)

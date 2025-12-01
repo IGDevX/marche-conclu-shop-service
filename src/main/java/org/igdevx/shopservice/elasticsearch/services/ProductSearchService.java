@@ -44,24 +44,30 @@ public class ProductSearchService {
 
         // Full-text search on title and description
         if (request.getQ() != null && !request.getQ().isBlank()) {
-            String searchQuery = request.getQ().toLowerCase();
+            String searchQuery = request.getQ().trim().toLowerCase();
 
             boolQueryBuilder.must(Query.of(q -> q
                     .bool(b -> b
+                            .should(s -> s
+                                    .matchPhrase(m -> m
+                                            .field("title")
+                                            .query(request.getQ())
+                                            .boost(10.0f)
+                                    )
+                            )
+                            .should(s -> s
+                                    .match(m -> m
+                                            .field("title")
+                                            .query(request.getQ())
+                                            .boost(8.0f)
+                                    )
+                            )
                             .should(s -> s
                                     .wildcard(w -> w
                                             .field("title")
                                             .value("*" + searchQuery + "*")
                                             .caseInsensitive(true)
-                                            .boost(3.0f)
-                                    )
-                            )
-                            .should(s -> s
-                                    .wildcard(w -> w
-                                            .field("description")
-                                            .value("*" + searchQuery + "*")
-                                            .caseInsensitive(true)
-                                            .boost(1.0f)
+                                            .boost(5.0f)
                                     )
                             )
                             .should(s -> s
@@ -69,6 +75,13 @@ public class ProductSearchService {
                                             .field("title")
                                             .query(request.getQ())
                                             .fuzziness("AUTO")
+                                            .boost(3.0f)
+                                    )
+                            )
+                            .should(s -> s
+                                    .matchPhrase(m -> m
+                                            .field("description")
+                                            .query(request.getQ())
                                             .boost(2.0f)
                                     )
                             )
@@ -76,7 +89,15 @@ public class ProductSearchService {
                                     .match(m -> m
                                             .field("description")
                                             .query(request.getQ())
-                                            .fuzziness("AUTO")
+                                            .boost(1.5f)
+                                    )
+                            )
+                            .should(s -> s
+                                    .wildcard(w -> w
+                                            .field("description")
+                                            .value("*" + searchQuery + "*")
+                                            .caseInsensitive(true)
+                                            .boost(0.5f)
                                     )
                             )
                             .minimumShouldMatch("1")
@@ -285,7 +306,9 @@ public class ProductSearchService {
 
     private void applySorting(NativeQueryBuilder queryBuilder, String sort) {
         if (sort == null || sort.isBlank()) {
-            // Default sorting by creation date descending
+            queryBuilder.withSort(co.elastic.clients.elasticsearch._types.SortOptions.of(s -> s
+                    .score(score -> score.order(SortOrder.Desc))
+            ));
             queryBuilder.withSort(co.elastic.clients.elasticsearch._types.SortOptions.of(s -> s
                     .field(f -> f.field("createdAt").order(SortOrder.Desc))
             ));
@@ -293,6 +316,11 @@ public class ProductSearchService {
         }
 
         switch (sort.toLowerCase()) {
+            case "relevance":
+                queryBuilder.withSort(co.elastic.clients.elasticsearch._types.SortOptions.of(s -> s
+                        .score(score -> score.order(SortOrder.Desc))
+                ));
+                break;
             case "price_asc":
                 queryBuilder.withSort(co.elastic.clients.elasticsearch._types.SortOptions.of(s -> s
                         .field(f -> f.field("price").order(SortOrder.Asc))

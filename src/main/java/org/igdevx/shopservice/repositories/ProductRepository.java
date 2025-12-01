@@ -62,7 +62,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.producerId = :producerId AND p.isDeleted = false")
     List<Product> findByProducerId(@Param("producerId") Long producerId);
 
-
     // Find products by producer ID and shelf ID
     @Query("SELECT p FROM Product p WHERE p.producerId = :producerId AND p.shelf.id = :shelfId AND p.isDeleted = false")
     List<Product> findByProducerIdAndShelfId(@Param("producerId") Long producerId, @Param("shelfId") Long shelfId);

@@ -197,6 +197,27 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/index/recreate")
+    @Operation(summary = "Recreate Elasticsearch index", description = "Delete and recreate the Elasticsearch index with updated mapping. Use this when ProductDocument structure changes.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Index recreated successfully")
+    })
+    public ResponseEntity<String> recreateIndex() {
+        productIndexService.recreateIndex();
+        return ResponseEntity.ok("Successfully recreated Elasticsearch index with new mapping");
+    }
+
+    @PostMapping("/index/recreate-and-reindex")
+    @Operation(summary = "Recreate index and reindex all products", description = "Delete and recreate the index with new mapping, then reindex all products")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Index recreated and reindexed successfully")
+    })
+    public ResponseEntity<String> recreateAndReindex() {
+        productIndexService.recreateIndex();
+        long count = productIndexService.reindexAllPaginated();
+        return ResponseEntity.ok("Successfully recreated index and reindexed " + count + " products");
+    }
+
     @PostMapping("/index/reindex-all")
     @Operation(summary = "Reindex all products", description = "Rebuild the entire Elasticsearch index with pagination (memory safe)")
     @ApiResponses(value = {

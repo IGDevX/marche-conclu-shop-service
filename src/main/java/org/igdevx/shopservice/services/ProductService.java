@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.igdevx.shopservice.dtos.ProductRequest;
 import org.igdevx.shopservice.dtos.ProductResponse;
 import org.igdevx.shopservice.elasticsearch.services.ProductIndexService;
+import org.igdevx.shopservice.events.ProductIndexEvent;
 import org.igdevx.shopservice.exceptions.ResourceNotFoundException;
 import org.igdevx.shopservice.mappers.ProductMapper;
 import org.igdevx.shopservice.models.*;
 import org.igdevx.shopservice.repositories.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class ProductService {
     private final ProductCertificationRepository certificationRepository;
     private final ProductMapper productMapper;
     private final ProductIndexService productIndexService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
@@ -119,8 +122,7 @@ public class ProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        // Index in Elasticsearch asynchronously (non-blocking)
-        productIndexService.indexProductAsync(savedProduct);
+        eventPublisher.publishEvent(ProductIndexEvent.updated(savedProduct.getId()));
 
         log.info("Product created with id: {}", savedProduct.getId());
         return productMapper.toResponse(savedProduct);
@@ -173,8 +175,7 @@ public class ProductService {
 
         Product updatedProduct = productRepository.save(product);
 
-        // Update Elasticsearch index asynchronously
-        productIndexService.indexProductAsync(updatedProduct);
+        eventPublisher.publishEvent(ProductIndexEvent.updated(id));
 
         log.info("Product updated with id: {}", id);
         return productMapper.toResponse(updatedProduct);
@@ -190,8 +191,7 @@ public class ProductService {
         product.softDelete();
         productRepository.save(product);
 
-        // Update Elasticsearch index to reflect deleted status asynchronously
-        productIndexService.indexProductAsync(product);
+        eventPublisher.publishEvent(ProductIndexEvent.updated(id));
 
         log.info("Product soft deleted with id: {}", id);
     }
@@ -210,8 +210,7 @@ public class ProductService {
         product.restore();
         productRepository.save(product);
 
-        // Update Elasticsearch index to reflect restored status asynchronously
-        productIndexService.indexProductAsync(product);
+        eventPublisher.publishEvent(ProductIndexEvent.updated(id));
 
         log.info("Product restored with id: {}", id);
     }
@@ -226,8 +225,7 @@ public class ProductService {
 
         productRepository.hardDeleteById(id);
 
-        // Delete from Elasticsearch index asynchronously
-        productIndexService.deleteFromIndexAsync(id);
+        eventPublisher.publishEvent(ProductIndexEvent.deleted(id));
 
         log.info("Product hard deleted with id: {}", id);
     }
