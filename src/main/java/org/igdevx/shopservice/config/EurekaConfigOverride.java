@@ -1,3 +1,11 @@
+package org.igdevx.shopservice.config;
+
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
+import org.springframework.context.annotation.Configuration;
+
 @Configuration
 public class EurekaConfigOverride {
 
